@@ -38,6 +38,8 @@ class App extends Component {
       this.setState({ marketplace })
       const productCount = await marketplace.methods.productCount().call()
       this.setState({ productCount })
+      // Reset products array
+      this.setState({ products: [] })
       // Load products
       for (var i = 1; i <= productCount; i++) {
         const product = await marketplace.methods.products(i).call()
@@ -45,6 +47,9 @@ class App extends Component {
           products: [...this.state.products, product]
         })
       }
+      // Load owned items
+      const ownedItems = await marketplace.methods.getOwnedItems(accounts[0]).call()
+      this.setState({ ownedItems })
       this.setState({ loading: false })
     } else {
       window.alert('Marketplace contract not deployed to detected network.')
@@ -57,6 +62,7 @@ class App extends Component {
       account: '',
       productCount: 0,
       products: [],
+      ownedItems: [],
       loading: true
     }
 
@@ -67,16 +73,16 @@ class App extends Component {
   createProduct(name, price, category) {
     this.setState({ loading: true })
     this.state.marketplace.methods.createProduct(name, price, category).send({ from: this.state.account })
-      .once('receipt', (receipt) => {
-        this.setState({ loading: false })
+      .once('receipt', async (receipt) => {
+        await this.loadBlockchainData() // Reload all data
       })
   }
 
   purchaseProduct(id, price) {
     this.setState({ loading: true })
     this.state.marketplace.methods.purchaseProduct(id).send({ from: this.state.account, value: price })
-      .once('receipt', (receipt) => {
-        this.setState({ loading: false })
+      .once('receipt', async (receipt) => {
+        await this.loadBlockchainData() // Reload all data
       })
   }
 
@@ -94,7 +100,8 @@ class App extends Component {
                   createProduct={this.createProduct}
                   purchaseProduct={this.purchaseProduct}
                   marketplace={this.state.marketplace}
-                  account={this.state.account} />
+                  account={this.state.account}
+                  ownedItems={this.state.ownedItems} />
               }
             </main>
           </div>

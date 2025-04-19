@@ -7,6 +7,9 @@ contract Marketplace {
     mapping(uint => Product) public products;
     address payable[] public marketplaceOwners;
     
+    // Mapping to track items owned by each address
+    mapping(address => uint[]) public ownedItems;
+    
     // Define available categories
     string[] public categories = ["Electronics", "Clothing", "Books", "Home", "Other"];
     
@@ -84,6 +87,8 @@ contract Marketplace {
         productCount ++;
         // Create the product
         products[productCount] = Product(productCount, _name, _price, msg.sender, false, _category);
+        // Add to owner's items
+        ownedItems[msg.sender].push(productCount);
         // Trigger an event
         emit ProductCreated(productCount, _name, _price, msg.sender, false, _category);
     }
@@ -109,8 +114,28 @@ contract Marketplace {
         products[_id] = _product;
         // Pay the seller by sending them Ether
         address(_seller).transfer(msg.value);
+        // Remove from seller's items and add to buyer's items
+        _removeFromOwnedItems(_seller, _id);
+        ownedItems[msg.sender].push(_id);
         // Trigger an event
         emit ProductPurchased(productCount, _product.name, _product.price, msg.sender, true, _product.category);
+    }
+
+    // Helper function to remove an item from ownedItems
+    function _removeFromOwnedItems(address _owner, uint _id) internal {
+        uint[] storage items = ownedItems[_owner];
+        for (uint i = 0; i < items.length; i++) {
+            if (items[i] == _id) {
+                items[i] = items[items.length - 1];
+                items.pop();
+                break;
+            }
+        }
+    }
+
+    // Function to get items owned by an address
+    function getOwnedItems(address _owner) public view returns (uint[] memory) {
+        return ownedItems[_owner];
     }
 
     // Helper function to get all categories

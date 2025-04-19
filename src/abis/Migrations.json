@@ -1511,12 +1511,12 @@
     "1745100730186": {
       "events": {},
       "links": {},
-      "address": "0x530bA4411139F6a5af9734532Abe2aB02033Bb8d",
-      "transactionHash": "0x246fd0ec03dd199b0eb9fe5d76f1d136a036b7ac3063cb4b7ed5c230fb0218cd"
+      "address": "0x723fa1976dF65Ec752F50Fd276070337d561D1A3",
+      "transactionHash": "0x73bfcaa16a812b8d8e2db4d92875c4aea090715ff02335771b9becf24d4618a1"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2025-04-19T22:17:55.855Z",
+  "updatedAt": "2025-04-19T22:31:53.489Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {}

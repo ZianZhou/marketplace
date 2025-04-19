@@ -151,4 +151,59 @@ contract('Marketplace', ([deployer, seller, buyer]) => {
       await marketplace.donate({ from: buyer, value: 0 }).should.be.rejected
     })
   })
+
+  describe('item ownership', async () => {
+    let result, productCount
+
+    before(async () => {
+      // Reset the marketplace contract to ensure clean state
+      marketplace = await Marketplace.new()
+      // Create initial products
+      await marketplace.createProduct('Laptop', web3.utils.toWei('2', 'Ether'), 'Electronics', { from: seller })
+      await marketplace.createProduct('Headphones', web3.utils.toWei('0.5', 'Ether'), 'Electronics', { from: seller })
+      productCount = await marketplace.productCount()
+    })
+
+    it('tracks items owned by seller', async () => {
+      // Get seller's owned items
+      const sellerItems = await marketplace.getOwnedItems(seller)
+      assert.equal(sellerItems.length, 2, 'Seller should own 2 items')
+      assert.equal(sellerItems[0].toString(), '1', 'First item ID should be 1')
+      assert.equal(sellerItems[1].toString(), '2', 'Second item ID should be 2')
+    })
+
+    it('updates ownership after purchase', async () => {
+      // Buyer purchases first item
+      await marketplace.purchaseProduct(1, { from: buyer, value: web3.utils.toWei('2', 'Ether') })
+
+      // Check seller's items
+      const sellerItems = await marketplace.getOwnedItems(seller)
+      assert.equal(sellerItems.length, 1, 'Seller should now own 1 item')
+      assert.equal(sellerItems[0].toString(), '2', 'Seller should only own the second item')
+
+      // Check buyer's items
+      const buyerItems = await marketplace.getOwnedItems(buyer)
+      assert.equal(buyerItems.length, 1, 'Buyer should own 1 item')
+      assert.equal(buyerItems[0].toString(), '1', 'Buyer should own the first item')
+    })
+
+    it('handles multiple purchases correctly', async () => {
+      // Create another product
+      await marketplace.createProduct('Keyboard', web3.utils.toWei('0.3', 'Ether'), 'Electronics', { from: seller })
+
+      // Buyer purchases the new item
+      await marketplace.purchaseProduct(3, { from: buyer, value: web3.utils.toWei('0.3', 'Ether') })
+
+      // Check seller's items
+      const sellerItems = await marketplace.getOwnedItems(seller)
+      assert.equal(sellerItems.length, 1, 'Seller should still own 1 item')
+      assert.equal(sellerItems[0].toString(), '2', 'Seller should still own the second item')
+
+      // Check buyer's items
+      const buyerItems = await marketplace.getOwnedItems(buyer)
+      assert.equal(buyerItems.length, 2, 'Buyer should now own 2 items')
+      assert.include(buyerItems.map(id => id.toString()), '1', 'Buyer should own the first item')
+      assert.include(buyerItems.map(id => id.toString()), '3', 'Buyer should own the third item')
+    })
+  })
 })

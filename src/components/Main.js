@@ -14,6 +14,11 @@ class Main extends Component {
       ? this.props.products
       : this.props.products.filter(product => product.category === this.state.selectedCategory);
 
+    // Get owned items details
+    const ownedItems = this.props.ownedItems.map(id =>
+      this.props.products.find(product => product.id.toString() === id.toString())
+    ).filter(Boolean);
+
     return (
       <div id="content">
         <div className="d-flex justify-content-between align-items-center mb-4">
@@ -64,6 +69,28 @@ class Main extends Component {
           </div>
           <button type="submit" className="btn btn-primary">Add Product</button>
         </form>
+        <p>&nbsp;</p>
+        <h2>My Items</h2>
+        <table className="table">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Name</th>
+              <th scope="col">Category</th>
+              <th scope="col">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ownedItems.map((product, key) => (
+              <tr key={key}>
+                <th scope="row">{product.id.toString()}</th>
+                <td>{product.name}</td>
+                <td>{product.category}</td>
+                <td>{window.web3.utils.fromWei(product.price.toString(), 'Ether')} Eth</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
         <p>&nbsp;</p>
         <h2>Buy Product</h2>
         <div className="form-group mr-sm-2">
