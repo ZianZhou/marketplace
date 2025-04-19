@@ -30,7 +30,7 @@ contract('Marketplace', ([deployer, seller, buyer]) => {
     let result, productCount
 
     before(async () => {
-      result = await marketplace.createProduct('iPhone X', web3.utils.toWei('1', 'Ether'), { from: seller })
+      result = await marketplace.createProduct('iPhone X', web3.utils.toWei('1', 'Ether'), 'Electronics', { from: seller })
       productCount = await marketplace.productCount()
     })
 
@@ -43,11 +43,14 @@ contract('Marketplace', ([deployer, seller, buyer]) => {
       assert.equal(event.price, '1000000000000000000', 'price is correct')
       assert.equal(event.owner, seller, 'owner is correct')
       assert.equal(event.purchased, false, 'purchased is correct')
+      assert.equal(event.category, 'Electronics', 'category is correct')
 
       // FAILURE: Product must have a name
-      await await marketplace.createProduct('', web3.utils.toWei('1', 'Ether'), { from: seller }).should.be.rejected;
+      await marketplace.createProduct('', web3.utils.toWei('1', 'Ether'), 'Electronics', { from: seller }).should.be.rejected
       // FAILURE: Product must have a price
-      await await marketplace.createProduct('iPhone X', 0, { from: seller }).should.be.rejected;
+      await marketplace.createProduct('iPhone X', 0, 'Electronics', { from: seller }).should.be.rejected
+      // FAILURE: Product must have a valid category
+      await marketplace.createProduct('iPhone X', web3.utils.toWei('1', 'Ether'), 'InvalidCategory', { from: seller }).should.be.rejected
     })
 
     it('lists products', async () => {
@@ -57,6 +60,7 @@ contract('Marketplace', ([deployer, seller, buyer]) => {
       assert.equal(product.price, '1000000000000000000', 'price is correct')
       assert.equal(product.owner, seller, 'owner is correct')
       assert.equal(product.purchased, false, 'purchased is correct')
+      assert.equal(product.category, 'Electronics', 'category is correct')
     })
 
     it('sells products', async () => {
@@ -66,7 +70,7 @@ contract('Marketplace', ([deployer, seller, buyer]) => {
       oldSellerBalance = new web3.utils.BN(oldSellerBalance)
 
       // SUCCESS: Buyer makes purchase
-      result = await marketplace.purchaseProduct(productCount, { from: buyer, value: web3.utils.toWei('1', 'Ether')})
+      result = await marketplace.purchaseProduct(productCount, { from: buyer, value: web3.utils.toWei('1', 'Ether') })
 
       // Check logs
       const event = result.logs[0].args
@@ -75,6 +79,7 @@ contract('Marketplace', ([deployer, seller, buyer]) => {
       assert.equal(event.price, '1000000000000000000', 'price is correct')
       assert.equal(event.owner, buyer, 'owner is correct')
       assert.equal(event.purchased, true, 'purchased is correct')
+      assert.equal(event.category, 'Electronics', 'category is correct')
 
       // Check that seller received funds
       let newSellerBalance
@@ -90,14 +95,22 @@ contract('Marketplace', ([deployer, seller, buyer]) => {
       assert.equal(newSellerBalance.toString(), exepectedBalance.toString())
 
       // FAILURE: Tries to buy a product that does not exist, i.e., product must have valid id
-      await marketplace.purchaseProduct(99, { from: buyer, value: web3.utils.toWei('1', 'Ether')}).should.be.rejected;      // FAILURE: Buyer tries to buy without enough ether
+      await marketplace.purchaseProduct(99, { from: buyer, value: web3.utils.toWei('1', 'Ether') }).should.be.rejected
       // FAILURE: Buyer tries to buy without enough ether
-      await marketplace.purchaseProduct(productCount, { from: buyer, value: web3.utils.toWei('0.5', 'Ether') }).should.be.rejected;
+      await marketplace.purchaseProduct(productCount, { from: buyer, value: web3.utils.toWei('0.5', 'Ether') }).should.be.rejected
       // FAILURE: Deployer tries to buy the product, i.e., product can't be purchased twice
-      await marketplace.purchaseProduct(productCount, { from: deployer, value: web3.utils.toWei('1', 'Ether') }).should.be.rejected;
+      await marketplace.purchaseProduct(productCount, { from: deployer, value: web3.utils.toWei('1', 'Ether') }).should.be.rejected
       // FAILURE: Buyer tries to buy again, i.e., buyer can't be the seller
-      await marketplace.purchaseProduct(productCount, { from: buyer, value: web3.utils.toWei('1', 'Ether') }).should.be.rejected;
+      await marketplace.purchaseProduct(productCount, { from: buyer, value: web3.utils.toWei('1', 'Ether') }).should.be.rejected
     })
 
+    it('validates categories', async () => {
+      // SUCCESS: Create products with valid categories
+      await marketplace.createProduct('Book', web3.utils.toWei('0.5', 'Ether'), 'Books', { from: seller }).should.be.fulfilled
+      await marketplace.createProduct('T-Shirt', web3.utils.toWei('0.3', 'Ether'), 'Clothing', { from: seller }).should.be.fulfilled
+
+      // FAILURE: Create product with invalid category
+      await marketplace.createProduct('Invalid Item', web3.utils.toWei('1', 'Ether'), 'InvalidCategory', { from: seller }).should.be.rejected
+    })
   })
 })

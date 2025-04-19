@@ -1,8 +1,18 @@
 import React, { Component } from 'react';
 
 class Main extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      selectedCategory: 'All'
+    };
+  }
 
   render() {
+    const filteredProducts = this.state.selectedCategory === 'All'
+      ? this.props.products
+      : this.props.products.filter(product => product.category === this.state.selectedCategory);
+
     return (
       <div id="content">
         <h1>Add Product</h1>
@@ -10,7 +20,8 @@ class Main extends Component {
           event.preventDefault()
           const name = this.productName.value
           const price = window.web3.utils.toWei(this.productPrice.value.toString(), 'Ether')
-          this.props.createProduct(name, price)
+          const category = this.productCategory.value
+          this.props.createProduct(name, price, category)
         }}>
           <div className="form-group mr-sm-2">
             <input
@@ -30,42 +41,71 @@ class Main extends Component {
               placeholder="Product Price"
               required />
           </div>
+          <div className="form-group mr-sm-2">
+            <select
+              id="productCategory"
+              ref={(input) => { this.productCategory = input }}
+              className="form-control"
+              required>
+              <option value="">Select Category</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Clothing">Clothing</option>
+              <option value="Books">Books</option>
+              <option value="Home">Home</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
           <button type="submit" className="btn btn-primary">Add Product</button>
         </form>
         <p>&nbsp;</p>
         <h2>Buy Product</h2>
+        <div className="form-group mr-sm-2">
+          <select
+            className="form-control"
+            onChange={(e) => this.setState({ selectedCategory: e.target.value })}
+            value={this.state.selectedCategory}>
+            <option value="All">All Categories</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Books">Books</option>
+            <option value="Home">Home</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
         <table className="table">
           <thead>
             <tr>
               <th scope="col">#</th>
               <th scope="col">Name</th>
+              <th scope="col">Category</th>
               <th scope="col">Price</th>
               <th scope="col">Owner</th>
               <th scope="col"></th>
             </tr>
           </thead>
           <tbody id="productList">
-            { this.props.products.map((product, key) => {
-              return(
+            {filteredProducts.map((product, key) => {
+              return (
                 <tr key={key}>
                   <th scope="row">{product.id.toString()}</th>
                   <td>{product.name}</td>
+                  <td>{product.category}</td>
                   <td>{window.web3.utils.fromWei(product.price.toString(), 'Ether')} Eth</td>
                   <td>{product.owner}</td>
                   <td>
-                    { !product.purchased
+                    {!product.purchased
                       ? <button
-                          name={product.id}
-                          value={product.price}
-                          onClick={(event) => {
-                            this.props.purchaseProduct(event.target.name, event.target.value)
-                          }}
-                        >
-                          Buy
-                        </button>
+                        name={product.id}
+                        value={product.price.toString()}
+                        onClick={(event) => {
+                          this.props.purchaseProduct(event.target.name, event.target.value)
+                        }}
+                        className="btn btn-primary">
+                        Buy
+                      </button>
                       : null
                     }
-                    </td>
+                  </td>
                 </tr>
               )
             })}

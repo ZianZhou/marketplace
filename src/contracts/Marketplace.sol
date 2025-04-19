@@ -1,16 +1,21 @@
 pragma solidity ^0.5.0;
+pragma experimental ABIEncoderV2;
 
 contract Marketplace {
     string public name;
     uint public productCount = 0;
     mapping(uint => Product) public products;
-
+    
+    // Define available categories
+    string[] public categories = ["Electronics", "Clothing", "Books", "Home", "Other"];
+    
     struct Product {
         uint id;
         string name;
         uint price;
         address payable owner;
         bool purchased;
+        string category;
     }
 
     event ProductCreated(
@@ -18,7 +23,8 @@ contract Marketplace {
         string name,
         uint price,
         address payable owner,
-        bool purchased
+        bool purchased,
+        string category
     );
 
     event ProductPurchased(
@@ -26,24 +32,37 @@ contract Marketplace {
         string name,
         uint price,
         address payable owner,
-        bool purchased
+        bool purchased,
+        string category
     );
 
     constructor() public {
         name = "Dapp University Marketplace";
     }
 
-    function createProduct(string memory _name, uint _price) public {
+    // Helper function to validate category
+    function isValidCategory(string memory _category) internal view returns (bool) {
+        for (uint i = 0; i < categories.length; i++) {
+            if (keccak256(abi.encodePacked(categories[i])) == keccak256(abi.encodePacked(_category))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function createProduct(string memory _name, uint _price, string memory _category) public {
         // Require a valid name
         require(bytes(_name).length > 0);
         // Require a valid price
         require(_price > 0);
+        // Require a valid category
+        require(isValidCategory(_category), "Invalid category");
         // Increment product count
         productCount ++;
         // Create the product
-        products[productCount] = Product(productCount, _name, _price, msg.sender, false);
+        products[productCount] = Product(productCount, _name, _price, msg.sender, false, _category);
         // Trigger an event
-        emit ProductCreated(productCount, _name, _price, msg.sender, false);
+        emit ProductCreated(productCount, _name, _price, msg.sender, false, _category);
     }
 
     function purchaseProduct(uint _id) public payable {
@@ -68,6 +87,11 @@ contract Marketplace {
         // Pay the seller by sending them Ether
         address(_seller).transfer(msg.value);
         // Trigger an event
-        emit ProductPurchased(productCount, _product.name, _product.price, msg.sender, true);
+        emit ProductPurchased(productCount, _product.name, _product.price, msg.sender, true, _product.category);
+    }
+
+    // Helper function to get all categories
+    function getCategories() public view returns (string[] memory) {
+        return categories;
     }
 }
