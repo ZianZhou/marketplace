@@ -113,4 +113,42 @@ contract('Marketplace', ([deployer, seller, buyer]) => {
       await marketplace.createProduct('Invalid Item', web3.utils.toWei('1', 'Ether'), 'InvalidCategory', { from: seller }).should.be.rejected
     })
   })
+
+  describe('donations', async () => {
+    let result
+    const donationAmount = web3.utils.toWei('1', 'Ether')
+
+    it('allows users to donate', async () => {
+      // Get initial balances of marketplace owners
+      const owners = await marketplace.getMarketplaceOwners()
+      const initialBalances = await Promise.all(
+        owners.map(owner => web3.eth.getBalance(owner))
+      )
+
+      // Make donation
+      result = await marketplace.donate({ from: buyer, value: donationAmount })
+
+      // Check event
+      const event = result.logs[0].args
+      assert.equal(event.donor, buyer)
+      assert.equal(event.amount.toString(), donationAmount)
+      assert.notEqual(event.timestamp, 0)
+
+      // Check that owners received their share
+      const shareAmount = web3.utils.toBN(donationAmount).div(web3.utils.toBN(owners.length))
+      const finalBalances = await Promise.all(
+        owners.map(owner => web3.eth.getBalance(owner))
+      )
+
+      // Verify each owner received their share
+      owners.forEach((owner, index) => {
+        const expectedBalance = web3.utils.toBN(initialBalances[index]).add(shareAmount)
+        assert.equal(finalBalances[index], expectedBalance.toString())
+      })
+    })
+
+    it('requires donation amount to be greater than 0', async () => {
+      await marketplace.donate({ from: buyer, value: 0 }).should.be.rejected
+    })
+  })
 })

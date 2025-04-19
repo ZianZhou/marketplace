@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import DonateButton from './DonateButton';
 
 class Main extends Component {
   constructor(props) {
@@ -15,7 +16,13 @@ class Main extends Component {
 
     return (
       <div id="content">
-        <h1>Add Product</h1>
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h1>Add Product</h1>
+          <DonateButton
+            marketplace={this.props.marketplace}
+            account={this.props.account}
+          />
+        </div>
         <form onSubmit={(event) => {
           event.preventDefault()
           const name = this.productName.value

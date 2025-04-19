@@ -92,7 +92,9 @@ class App extends Component {
                 : <Main
                   products={this.state.products}
                   createProduct={this.createProduct}
-                  purchaseProduct={this.purchaseProduct} />
+                  purchaseProduct={this.purchaseProduct}
+                  marketplace={this.state.marketplace}
+                  account={this.state.account} />
               }
             </main>
           </div>

@@ -5,6 +5,7 @@ contract Marketplace {
     string public name;
     uint public productCount = 0;
     mapping(uint => Product) public products;
+    address payable[] public marketplaceOwners;
     
     // Define available categories
     string[] public categories = ["Electronics", "Clothing", "Books", "Home", "Other"];
@@ -36,8 +37,30 @@ contract Marketplace {
         string category
     );
 
+    event DonationReceived(
+        address indexed donor,
+        uint amount,
+        uint timestamp
+    );
+
     constructor() public {
         name = "Dapp University Marketplace";
+        // Add marketplace owners
+        marketplaceOwners.push(address(0x123)); // Replace with Spencer's address
+        marketplaceOwners.push(address(0x456)); // Replace with Zian's address
+    }
+
+    function donate() public payable {
+        require(msg.value > 0, "Donation amount must be greater than 0");
+        
+        // Split the donation equally between owners
+        uint shareAmount = msg.value / marketplaceOwners.length;
+        for(uint i = 0; i < marketplaceOwners.length; i++) {
+            marketplaceOwners[i].transfer(shareAmount);
+        }
+        
+        // Emit donation event
+        emit DonationReceived(msg.sender, msg.value, now);
     }
 
     // Helper function to validate category
@@ -93,5 +116,10 @@ contract Marketplace {
     // Helper function to get all categories
     function getCategories() public view returns (string[] memory) {
         return categories;
+    }
+
+    // Helper function to get marketplace owners
+    function getMarketplaceOwners() public view returns (address payable[] memory) {
+        return marketplaceOwners;
     }
 }
