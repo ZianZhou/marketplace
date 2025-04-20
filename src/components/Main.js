@@ -5,19 +5,33 @@ class Main extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedCategory: 'All'
+      selectedCategory: 'All',
+      selectedMyItemsCategory: 'All',
+      searchTerm: '',
+      myItemsSearchTerm: ''
     };
   }
 
   render() {
-    const filteredProducts = this.state.selectedCategory === 'All'
-      ? this.props.products
-      : this.props.products.filter(product => product.category === this.state.selectedCategory);
+    // Filter products for buy section
+    const filteredProducts = this.props.products
+      .filter(product =>
+        this.state.selectedCategory === 'All' || product.category === this.state.selectedCategory
+      )
+      .filter(product =>
+        product.name.toLowerCase().includes(this.state.searchTerm.toLowerCase())
+      );
 
-    // Get owned items details
-    const ownedItems = this.props.ownedItems.map(id =>
-      this.props.products.find(product => product.id.toString() === id.toString())
-    ).filter(Boolean);
+    // Get owned items details and filter them
+    const ownedItems = this.props.ownedItems
+      .map(id => this.props.products.find(product => product.id.toString() === id.toString()))
+      .filter(Boolean)
+      .filter(item =>
+        this.state.selectedMyItemsCategory === 'All' || item.category === this.state.selectedMyItemsCategory
+      )
+      .filter(item =>
+        item.name.toLowerCase().includes(this.state.myItemsSearchTerm.toLowerCase())
+      );
 
     return (
       <div id="content">
@@ -71,6 +85,28 @@ class Main extends Component {
         </form>
         <p>&nbsp;</p>
         <h2>My Items</h2>
+        <div className="form-group mr-sm-2">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search my items..."
+            value={this.state.myItemsSearchTerm}
+            onChange={(e) => this.setState({ myItemsSearchTerm: e.target.value })}
+          />
+        </div>
+        <div className="form-group mr-sm-2">
+          <select
+            className="form-control"
+            onChange={(e) => this.setState({ selectedMyItemsCategory: e.target.value })}
+            value={this.state.selectedMyItemsCategory}>
+            <option value="All">All Categories</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Books">Books</option>
+            <option value="Home">Home</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
         <table className="table">
           <thead>
             <tr>
@@ -93,6 +129,15 @@ class Main extends Component {
         </table>
         <p>&nbsp;</p>
         <h2>Buy Product</h2>
+        <div className="form-group mr-sm-2">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Search products..."
+            value={this.state.searchTerm}
+            onChange={(e) => this.setState({ searchTerm: e.target.value })}
+          />
+        </div>
         <div className="form-group mr-sm-2">
           <select
             className="form-control"
