@@ -248,6 +248,7 @@ class App extends Component {
                     refundProduct={this.refundProduct}
                     account={this.state.account}
                     cartItems={this.state.cartItems}
+                    marketplace={this.state.marketplace}
                   />
                   : this.state.currentPage === 'services'
                     ? <ServiceComponent
