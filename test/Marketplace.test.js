@@ -8,20 +8,24 @@ contract('Marketplace', ([deployer, seller, buyer]) => {
   let marketplace
 
   before(async () => {
-    marketplace = await Marketplace.deployed()
+    // Fund the test accounts
+    const accounts = await web3.eth.getAccounts();
+    const amount = web3.utils.toWei('20', 'ether');
 
-    // Fund the seller and buyer accounts with Ether
-    const fundingAmount = web3.utils.toWei('10', 'Ether')
+    // Fund seller and buyer accounts from deployer
     await web3.eth.sendTransaction({
       from: deployer,
       to: seller,
-      value: fundingAmount
-    })
+      value: amount
+    });
+
     await web3.eth.sendTransaction({
       from: deployer,
       to: buyer,
-      value: fundingAmount
-    })
+      value: amount
+    });
+
+    marketplace = await Marketplace.deployed()
   })
 
   describe('deployment', async () => {
