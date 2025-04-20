@@ -23,7 +23,7 @@ PREREQUISITES
 
 SETUP INSTRUCTIONS
 1. Clone the repository:
-   git clone <repository-url>
+   git clone git@github.com:ZianZhou/marketplace.git
    cd marketplace
 
 2. Install dependencies:

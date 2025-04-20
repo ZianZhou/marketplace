@@ -28,7 +28,7 @@ A decentralized marketplace built on Ethereum where users can buy, sell, and man
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone git@github.com:ZianZhou/marketplace.git
    cd marketplace
    ```
 
