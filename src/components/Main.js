@@ -159,7 +159,7 @@ class Main extends Component {
               <th scope="col">Category</th>
               <th scope="col">Price</th>
               <th scope="col">Owner</th>
-              <th scope="col"></th>
+              <th scope="col">Actions</th>
             </tr>
           </thead>
           <tbody id="productList">
@@ -172,18 +172,29 @@ class Main extends Component {
                   <td>{window.web3.utils.fromWei(product.price.toString(), 'Ether')} Eth</td>
                   <td>{product.owner}</td>
                   <td>
-                    {!product.purchased
-                      ? <button
-                        name={product.id}
-                        value={product.price.toString()}
-                        onClick={(event) => {
-                          this.props.purchaseProduct(event.target.name, event.target.value)
-                        }}
-                        className="btn btn-primary">
-                        Buy
-                      </button>
-                      : null
-                    }
+                    {!product.purchased && (
+                      <div className="d-flex gap-2">
+                        <button
+                          name={product.id}
+                          value={product.price.toString()}
+                          onClick={(event) => {
+                            this.props.purchaseProduct(event.target.name, event.target.value)
+                          }}
+                          className="btn btn-primary">
+                          Buy
+                        </button>
+                        <button
+                          onClick={() => this.props.addToCart({
+                            id: product.id,
+                            name: product.name,
+                            price: product.price.toString(),
+                            category: product.category
+                          })}
+                          className="btn btn-outline-primary">
+                          Add to Cart
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               )

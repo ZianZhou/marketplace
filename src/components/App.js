@@ -7,6 +7,7 @@ import Service from '../abis/Service.json'
 import Navbar from './Navbar'
 import Main from './Main'
 import ServiceComponent from './ServiceComponent'
+import ShoppingCart from './ShoppingCart'
 
 class App extends Component {
 
@@ -90,13 +91,16 @@ class App extends Component {
       products: [],
       ownedItems: [],
       service: null,
-      currentPage: 'services', // Set default to services for testing
-      loading: true
+      currentPage: 'services',
+      loading: true,
+      cartItems: []
     }
 
     this.createProduct = this.createProduct.bind(this)
     this.purchaseProduct = this.purchaseProduct.bind(this)
     this.switchPage = this.switchPage.bind(this)
+    this.addToCart = this.addToCart.bind(this)
+    this.removeFromCart = this.removeFromCart.bind(this)
   }
 
   switchPage(page) {
@@ -120,6 +124,18 @@ class App extends Component {
       })
   }
 
+  addToCart(item) {
+    this.setState(prevState => ({
+      cartItems: [...prevState.cartItems, item]
+    }))
+  }
+
+  removeFromCart(itemId) {
+    this.setState(prevState => ({
+      cartItems: prevState.cartItems.filter(item => item.id !== itemId)
+    }))
+  }
+
   render() {
     return (
       <div>
@@ -127,6 +143,7 @@ class App extends Component {
           account={this.state.account}
           switchPage={this.switchPage}
           currentPage={this.state.currentPage}
+          cartItems={this.state.cartItems}
         />
         <div className="container-fluid mt-5">
           <div className="row">
@@ -140,12 +157,19 @@ class App extends Component {
                     purchaseProduct={this.purchaseProduct}
                     marketplace={this.state.marketplace}
                     account={this.state.account}
-                    ownedItems={this.state.ownedItems} />
+                    ownedItems={this.state.ownedItems}
+                    addToCart={this.addToCart} />
                   : this.state.currentPage === 'services'
                     ? <ServiceComponent
                       service={this.state.service}
                       account={this.state.account} />
-                    : <div>Invalid page</div>
+                    : this.state.currentPage === 'cart'
+                      ? <ShoppingCart
+                        marketplace={this.state.marketplace}
+                        account={this.state.account}
+                        cartItems={this.state.cartItems}
+                        removeFromCart={this.removeFromCart} />
+                      : <div>Invalid page</div>
               }
             </main>
           </div>

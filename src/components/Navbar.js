@@ -26,6 +26,19 @@ class Navbar extends Component {
             </button>
           </li>
           <li className="nav-item text-nowrap mx-2">
+            <button
+              className={`btn ${this.props.currentPage === 'cart' ? 'btn-primary' : 'btn-outline-primary'} position-relative`}
+              onClick={() => this.props.switchPage('cart')}
+            >
+              Cart
+              {this.props.cartItems.length > 0 && (
+                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                  {this.props.cartItems.length}
+                </span>
+              )}
+            </button>
+          </li>
+          <li className="nav-item text-nowrap mx-2">
             <small className="text-white"><span id="account">{this.props.account}</span></small>
           </li>
         </ul>

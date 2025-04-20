@@ -1475,12 +1475,12 @@
     "1745100730186": {
       "events": {},
       "links": {},
-      "address": "0xcc50858b222e30Ce515220b11523D3071D53E0C6",
-      "transactionHash": "0x8b65a42fa9bff89acf3785181f388d8e51b8a8d7c9b23dd8b09fdb773c5afa59"
+      "address": "0x04a780C49c5A54491638F5Dbe3022Ac07F831e84",
+      "transactionHash": "0xe69b152ef7f9c726f1075f09461422483bba74a9845b3a27eaa6a68772d30b54"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2025-04-20T15:27:04.454Z",
+  "updatedAt": "2025-04-20T15:53:38.881Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {}
