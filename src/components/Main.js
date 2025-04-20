@@ -8,7 +8,9 @@ class Main extends Component {
       selectedCategory: 'All',
       selectedMyItemsCategory: 'All',
       searchTerm: '',
-      myItemsSearchTerm: ''
+      myItemsSearchTerm: '',
+      refundingProduct: null,
+      purchasingProduct: null
     };
   }
 
@@ -23,9 +25,10 @@ class Main extends Component {
       );
 
     // Get owned items details and filter them
-    const ownedItems = this.props.ownedItems
-      .map(id => this.props.products.find(product => product.id.toString() === id.toString()))
-      .filter(Boolean)
+    const ownedItems = this.props.products
+      .filter(product =>
+        product.owner === this.props.account
+      )
       .filter(item =>
         this.state.selectedMyItemsCategory === 'All' || item.category === this.state.selectedMyItemsCategory
       )
@@ -178,10 +181,15 @@ class Main extends Component {
                           name={product.id}
                           value={product.price.toString()}
                           onClick={(event) => {
-                            this.props.purchaseProduct(event.target.name, event.target.value)
+                            const id = event.target.name;
+                            const price = event.target.value;
+                            this.setState({ purchasingProduct: id });
+                            this.props.purchaseProduct(id, price)
+                              .finally(() => this.setState({ purchasingProduct: null }));
                           }}
+                          disabled={this.state.purchasingProduct === product.id}
                           className="btn btn-primary">
-                          Buy
+                          {this.state.purchasingProduct === product.id ? 'Processing...' : 'Buy'}
                         </button>
                         <button
                           onClick={() => this.props.addToCart({
@@ -190,10 +198,23 @@ class Main extends Component {
                             price: product.price.toString(),
                             category: product.category
                           })}
+                          disabled={this.state.purchasingProduct === product.id}
                           className="btn btn-outline-primary">
                           Add to Cart
                         </button>
                       </div>
+                    )}
+                    {product.purchased && product.owner === this.props.account && (
+                      <button
+                        onClick={() => {
+                          this.setState({ refundingProduct: product.id });
+                          this.props.refundProduct(product.id)
+                            .finally(() => this.setState({ refundingProduct: null }));
+                        }}
+                        disabled={this.state.refundingProduct === product.id}
+                        className="btn btn-danger">
+                        {this.state.refundingProduct === product.id ? 'Processing...' : 'Refund'}
+                      </button>
                     )}
                   </td>
                 </tr>

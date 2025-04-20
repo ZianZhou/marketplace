@@ -101,6 +101,7 @@ class App extends Component {
     this.switchPage = this.switchPage.bind(this)
     this.addToCart = this.addToCart.bind(this)
     this.removeFromCart = this.removeFromCart.bind(this)
+    this.refundProduct = this.refundProduct.bind(this)
   }
 
   switchPage(page) {
@@ -118,10 +119,31 @@ class App extends Component {
 
   purchaseProduct(id, price) {
     this.setState({ loading: true })
-    this.state.marketplace.methods.purchaseProduct(id).send({ from: this.state.account, value: price })
-      .once('receipt', async (receipt) => {
-        await this.loadBlockchainData()
-      })
+    return new Promise((resolve, reject) => {
+      this.state.marketplace.methods.purchaseProduct(id).send({ from: this.state.account, value: price })
+        .once('receipt', async (receipt) => {
+          console.log('Purchase successful:', receipt);
+          await this.loadBlockchainData()
+          this.setState({ loading: false })
+          resolve(receipt)
+        })
+        .on('error', (error) => {
+          console.error('Purchase error:', error);
+          let errorMessage = 'Error during purchase';
+          if (error.message.includes("revert")) {
+            const revertMessage = error.message.split('revert');
+            if (revertMessage.length > 1) {
+              const reason = revertMessage[1].trim();
+              errorMessage = 'Purchase failed: ' + reason;
+            } else {
+              errorMessage = 'Purchase failed: Unknown reason';
+            }
+          }
+          window.alert(errorMessage);
+          this.setState({ loading: false });
+          reject(error);
+        });
+    });
   }
 
   addToCart(item) {
@@ -134,6 +156,36 @@ class App extends Component {
     this.setState(prevState => ({
       cartItems: prevState.cartItems.filter(item => item.id !== itemId)
     }))
+  }
+
+  refundProduct(id) {
+    this.setState({ loading: true })
+    return new Promise((resolve, reject) => {
+      this.state.marketplace.methods.refundProduct(id).send({ from: this.state.account })
+        .once('receipt', async (receipt) => {
+          console.log('Refund successful:', receipt);
+          await this.loadBlockchainData()
+          this.removeFromCart(id)
+          this.setState({ loading: false })
+          resolve(receipt)
+        })
+        .on('error', async (error) => {
+          console.error('Detailed refund error:', error);
+          let errorMessage = 'Error during refund';
+          if (error.message.includes("revert")) {
+            const revertMessage = error.message.split('revert');
+            if (revertMessage.length > 1) {
+              const reason = revertMessage[1].trim();
+              errorMessage = 'Refund failed: ' + reason;
+            } else {
+              errorMessage = 'Refund failed: Unknown reason';
+            }
+          }
+          window.alert(errorMessage);
+          this.setState({ loading: false });
+          reject(error);
+        });
+    });
   }
 
   render() {
@@ -155,10 +207,12 @@ class App extends Component {
                     products={this.state.products}
                     createProduct={this.createProduct}
                     purchaseProduct={this.purchaseProduct}
-                    marketplace={this.state.marketplace}
+                    addToCart={this.addToCart}
+                    removeFromCart={this.removeFromCart}
+                    refundProduct={this.refundProduct}
                     account={this.state.account}
-                    ownedItems={this.state.ownedItems}
-                    addToCart={this.addToCart} />
+                    cartItems={this.state.cartItems}
+                  />
                   : this.state.currentPage === 'services'
                     ? <ServiceComponent
                       service={this.state.service}

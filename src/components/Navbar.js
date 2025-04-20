@@ -6,7 +6,7 @@ class Navbar extends Component {
     return (
       <nav className="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
         <div className="navbar-brand col-sm-3 col-md-2 mr-0">
-          Dapp University's Blockchain Marketplace
+          Zian and Spencer's Blockchain Marketplace
         </div>
         <ul className="navbar-nav px-3 d-flex flex-row">
           <li className="nav-item text-nowrap mx-2">

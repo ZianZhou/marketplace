@@ -159,7 +159,7 @@ class ServiceComponent extends Component {
                         <div id="content" className="w-100">
                             <h1 className="mb-4">Available Services</h1>
                             <div className="row">
-                                {this.state.serviceTypes.length === 0 ? (
+                                {(!this.state.serviceTypes || this.state.serviceTypes.length === 0) ? (
                                     <div className="col-12">
                                         <div className="alert alert-info">
                                             No services available at the moment.
