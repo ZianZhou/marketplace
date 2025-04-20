@@ -9361,12 +9361,12 @@
     "1745100730186": {
       "events": {},
       "links": {},
-      "address": "0x06e77A9A3aC388149aDB43ADdB3DC511b66D823E",
-      "transactionHash": "0xf10be97fea254b6e2b7224908f04340d5772d1e3200ad1a56feeed2cfe175a11"
+      "address": "0x8924BC14684785705ffD8f14f53D0a84FCb11982",
+      "transactionHash": "0x7dada316385ac7b4683a984800a7d33552feb7e527f9d7dc080973511ee1958c"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2025-04-20T16:29:06.612Z",
+  "updatedAt": "2025-04-20T16:35:13.821Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {}

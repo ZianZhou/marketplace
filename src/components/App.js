@@ -14,6 +14,36 @@ class App extends Component {
   async componentWillMount() {
     await this.loadWeb3()
     await this.loadBlockchainData()
+
+    // Add event listeners for account changes
+    if (window.ethereum) {
+      window.ethereum.on('accountsChanged', async (accounts) => {
+        this.setState({ loading: true })
+        await this.loadBlockchainData()
+      })
+
+      window.ethereum.on('chainChanged', async () => {
+        this.setState({ loading: true })
+        await this.loadBlockchainData()
+      })
+    }
+
+    // Add visibility change listener
+    document.addEventListener('visibilitychange', async () => {
+      if (document.visibilityState === 'visible') {
+        this.setState({ loading: true })
+        await this.loadBlockchainData()
+      }
+    })
+  }
+
+  componentWillUnmount() {
+    // Clean up event listeners
+    if (window.ethereum) {
+      window.ethereum.removeAllListeners('accountsChanged')
+      window.ethereum.removeAllListeners('chainChanged')
+    }
+    document.removeEventListener('visibilitychange', this.loadBlockchainData)
   }
 
   async loadWeb3() {
@@ -91,7 +121,7 @@ class App extends Component {
       products: [],
       ownedItems: [],
       service: null,
-      currentPage: 'services',
+      currentPage: 'marketplace',
       loading: true,
       cartItems: []
     }
@@ -114,7 +144,13 @@ class App extends Component {
     this.state.marketplace.methods.createProduct(name, price, category).send({ from: this.state.account })
       .once('receipt', async (receipt) => {
         await this.loadBlockchainData()
+        this.setState({ loading: false })
       })
+      .on('error', (error) => {
+        console.error('Create product error:', error);
+        this.setState({ loading: false });
+        window.alert('Error creating product');
+      });
   }
 
   purchaseProduct(id, price) {
