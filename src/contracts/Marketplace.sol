@@ -121,7 +121,8 @@ contract Marketplace {
         _product.purchased = true;
         // Update the product
         products[_id] = _product;
-        // Store the payment in the contract for potential refund
+        // Pay the seller
+        _seller.transfer(_product.price);
         // The excess payment is returned to the buyer
         if (msg.value > _product.price) {
             msg.sender.transfer(msg.value - _product.price);

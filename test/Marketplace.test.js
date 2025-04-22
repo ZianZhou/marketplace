@@ -10,7 +10,7 @@ contract('Marketplace', ([deployer, seller, buyer]) => {
   before(async () => {
     // Fund the test accounts
     const accounts = await web3.eth.getAccounts();
-    const amount = web3.utils.toWei('20', 'ether');
+    const amount = web3.utils.toWei('100', 'ether');
 
     // Fund seller and buyer accounts from deployer
     await web3.eth.sendTransaction({
@@ -107,9 +107,12 @@ contract('Marketplace', ([deployer, seller, buyer]) => {
       price = web3.utils.toWei('1', 'Ether')
       price = new web3.utils.BN(price)
 
-      const exepectedBalance = oldSellerBalance.add(price)
-
-      assert.equal(newSellerBalance.toString(), exepectedBalance.toString())
+      // Verify the seller received the payment
+      assert.equal(
+        newSellerBalance.toString(),
+        oldSellerBalance.add(price).toString(),
+        'Seller should receive the payment'
+      )
 
       // FAILURE: Tries to buy a product that does not exist, i.e., product must have valid id
       await marketplace.purchaseProduct(99, { from: buyer, value: web3.utils.toWei('1', 'Ether') }).should.be.rejected
