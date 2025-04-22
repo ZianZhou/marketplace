@@ -4,35 +4,60 @@ DESCRIPTION
 A decentralized marketplace built on Ethereum where users can buy, sell, and manage products. Features include product listings, shopping cart functionality, service offerings, and the ability to donate to marketplace owners.
 
 TECHNOLOGY STACK & VERSIONS
-- Node.js: v14.x or higher
+- Node.js: v14.21.3 (LTS version recommended)
+- npm: v6.14.18 (comes with Node.js)
 - Truffle: v5.0.5
 - Solidity: ^0.5.0
 - Web3.js: v1.0.0-beta.55
 - React: v16.8.4
 - React Bootstrap: v1.0.0-beta.5
-- Ganache: Latest version (for local blockchain)
+- Ganache: v7.7.7 (GUI version) or ganache-cli v6.12.2
 - MetaMask: Latest version (for wallet integration)
 
 PREREQUISITES
-1. Install Node.js (v14.x or higher)
-2. Install Truffle globally by running:
+1. Install Node.js and npm:
+   - Download and install Node.js v14.21.3 from https://nodejs.org/
+   - Verify installation by running:
+     node --version  # Should show v14.21.3
+     npm --version   # Should show v6.14.18
+
+2. Install Truffle globally:
    npm install -g truffle@5.0.5
-3. Install Ganache (local blockchain)
-4. Install MetaMask browser extension
-5. Configure MetaMask to connect to your local Ganache blockchain
+   Verify installation:
+   truffle version  # Should show v5.0.5
+
+3. Install Ganache:
+   - Option 1: GUI version (recommended)
+     Download Ganache v7.7.7 from https://trufflesuite.com/ganache/
+   - Option 2: CLI version
+     npm install -g ganache-cli@6.12.2
+     Verify installation:
+     ganache-cli --version  # Should show v6.12.2
+
+4. Install MetaMask browser extension:
+   - Download from https://metamask.io/
+   - Create a new wallet or import existing one
 
 SETUP INSTRUCTIONS
 1. Clone the repository:
    git clone git@github.com:ZianZhou/marketplace.git
    cd marketplace
 
-2. Install dependencies:
+2. Install project dependencies:
    npm install
+   This will install:
+   - web3.js v1.0.0-beta.55
+   - React v16.8.4
+   - React Bootstrap v1.0.0-beta.5
+   - Other required dependencies
 
 3. Start Ganache:
-   - Open Ganache
-   - Create a new workspace (or use quickstart)
-   - Make sure it's running on HTTP://127.0.0.1:8545
+   - GUI Version:
+     - Open Ganache
+     - Create a new workspace (or use quickstart)
+     - Make sure it's running on HTTP://127.0.0.1:8545
+   - CLI Version:
+     ganache-cli -p 8545
 
 4. Configure MetaMask:
    - Connect MetaMask to your local Ganache blockchain
